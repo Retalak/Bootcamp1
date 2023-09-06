@@ -4,6 +4,7 @@ var http = require('http'),
 
 /* Global variables */
 var listingData, server;
+var url = require('url');
 
 var requestHandler = function(request, response) {
   /*Investigate the request object. 
@@ -29,6 +30,17 @@ var requestHandler = function(request, response) {
     Helpful example: if-else structure- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/if...else
 
     */
+  var pathname = url.parse(request.url).pathname;
+  if( pathname == '/listings' ){
+      response.writeHead(200, {'Content-Type': 'text/plain'});
+      response.write(listingData);
+      response.end();
+  }
+  else{
+      response.writeHead( 404, {'Content-Type': 'text/plain'});
+      response.write('404 not found!\n');
+      response.end();
+  }
 };
 
 fs.readFile('listings.json', 'utf8', function(err, data) {
@@ -50,11 +62,13 @@ fs.readFile('listings.json', 'utf8', function(err, data) {
   
 
    //Save the data in the listingData variable already defined
-  
+  listingData = data;
 
-  //Creates the server
-  
+  //Create the server
+  var server = http.createServer(requestHandler);
   //Start the server
-
+  server.listen(port, function() {
+    console.log('Server listening on: http://127.0.0.1:' + port);
+  });
 
 });
